@@ -8,6 +8,5 @@
 
     <!-- Annotation-based beans -->
     <context:component-scan base-package="de.balvi.cuba.declarativecontrollers"/>
-    <gui:screens base-packages="de.balvi.cuba.declarativecontrollers.web"/>
 
 </beans>

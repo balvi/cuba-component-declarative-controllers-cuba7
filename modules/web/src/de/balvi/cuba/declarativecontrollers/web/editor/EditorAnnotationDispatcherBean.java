@@ -10,30 +10,50 @@ import org.springframework.stereotype.Component;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Map;
 
 @CompileStatic
 @Component(EditorAnnotationDispatcher.NAME)
 class EditorAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean implements EditorAnnotationDispatcher {
 
+
     @Override
-    public void executeInit(AnnotatableAbstractEditor editor, Map<String, Object> params) {
-        executeInitForClassAnnotations(editor, params);
-        executeInitForFieldAnnotations(editor, params);
+    public void executeOnInit(AnnotatableStandardEditor editor) {
+        executeInitForClassAnnotations(editor);
+        executeInitForFieldAnnotations(editor);
     }
 
-    private void executeInitForClassAnnotations(AnnotatableAbstractEditor editor, Map<String, Object> params) {
+    @Override
+    public void executeonBeforeShow(AnnotatableStandardEditor editor) {
+        executePostInitForClassAnnotations(editor);
+        executePostInitForFieldAnnotations(editor);
+    }
+
+
+    private void executeInitForClassAnnotations(AnnotatableStandardEditor editor) {
         for (Annotation annotation : getClassAnnotations(editor)) {
 
             Collection<EditorAnnotationExecutor> supportedAnnotationExecutors = getSupportedEditorAnnotationExecutors(annotation);
 
             for (EditorAnnotationExecutor annotationExecutor : supportedAnnotationExecutors) {
-                annotationExecutor.init(annotation, editor, params);
+                annotationExecutor.init(annotation, editor);
             }
         }
     }
 
-    private void executeInitForFieldAnnotations(AnnotatableAbstractEditor editor, Map<String, Object> params) {
+    private void executePostInitForClassAnnotations(AnnotatableStandardEditor editor) {
+
+        for (Annotation annotation : getClassAnnotations(editor)) {
+
+            Collection<EditorAnnotationExecutor> supportedAnnotationExecutors = getSupportedEditorAnnotationExecutors(annotation);
+
+            for (EditorAnnotationExecutor annotationExecutor : supportedAnnotationExecutors) {
+                annotationExecutor.postInit(annotation, editor);
+            }
+        }
+    }
+
+
+    private void executeInitForFieldAnnotations(AnnotatableStandardEditor editor) {
         for (Field field : getDeclaredFields(editor)) {
             Annotation[] fieldAnnotations = field.getAnnotations();
             for (Annotation annotation : fieldAnnotations) {
@@ -43,7 +63,7 @@ class EditorAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean im
                 if (supportedAnnotationExecutors != null && supportedAnnotationExecutors.size() > 0) {
                     com.haulmont.cuba.gui.components.Component fieldValue = getFieldValue(editor, field);
                     for (EditorFieldAnnotationExecutor annotationExecutor : supportedAnnotationExecutors) {
-                        annotationExecutor.init(annotation, editor, fieldValue, params);
+                        annotationExecutor.init(annotation, editor, fieldValue);
                     }
                 }
 
@@ -51,13 +71,7 @@ class EditorAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean im
         }
     }
 
-    @Override
-    public void executePostInit(AnnotatableAbstractEditor editor) {
-        executePostInitForClassAnnotations(editor);
-        executeInitForFieldAnnotations(editor);
-    }
-
-    private void executeInitForFieldAnnotations(AnnotatableAbstractEditor editor) {
+    private void executePostInitForFieldAnnotations(AnnotatableStandardEditor editor) {
 
         for (Field field : getDeclaredFields(editor)) {
             Annotation[] fieldAnnotations = field.getAnnotations();
@@ -74,17 +88,6 @@ class EditorAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean im
         }
     }
 
-    private void executePostInitForClassAnnotations(AnnotatableAbstractEditor editor) {
-
-        for (Annotation annotation : getClassAnnotations(editor)) {
-
-            Collection<EditorAnnotationExecutor> supportedAnnotationExecutors = getSupportedEditorAnnotationExecutors(annotation);
-
-            for (EditorAnnotationExecutor annotationExecutor : supportedAnnotationExecutors) {
-                annotationExecutor.postInit(annotation, editor);
-            }
-        }
-    }
 
     protected Collection<EditorAnnotationExecutor> getSupportedEditorAnnotationExecutors(Annotation annotation) {
         Collection<EditorAnnotationExecutor> annotationExecutors = getEditorAnnotationExecutors();

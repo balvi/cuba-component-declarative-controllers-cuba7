@@ -4,48 +4,36 @@ import spock.lang.Specification
 
 class AnnotatableAbstractLookupSpec extends Specification {
 
-    AnnotatableAbstractLookup browse
+    AnnotatableAbstractLookup sut
     BrowseAnnotationDispatcher browseAnnotationExecutorService
 
     def setup() {
 
         browseAnnotationExecutorService = Mock(BrowseAnnotationDispatcher)
 
-        browse = new AnnotatableAbstractLookup(
+        sut = new AnnotatableAbstractLookup(
                 browseAnnotationDispatcher: browseAnnotationExecutorService
         )
     }
 
-    def "init triggers the execution of the annotations"() {
+    def "onInit triggers the execution of the annotations"() {
 
         when:
-        browse.init([:])
+        sut.onInit(null)
 
         then:
-        1 * browseAnnotationExecutorService.executeInit(browse, [:])
+        1 * browseAnnotationExecutorService.executeOnInit(sut)
     }
 
-    def "ready triggers the execution of the annotations"() {
+    def "onBeforeShow triggers the execution of the annotations"() {
 
         when:
-        browse.ready()
+        sut.onBeforeShow()
 
         then:
-        1 * browseAnnotationExecutorService.executeReady(browse, _)
+        1 * browseAnnotationExecutorService.onBeforeShow(sut)
     }
 
-    def "ready saves the parameters and passes them to the executorService"() {
-
-        given:
-        def params = [my:'param']
-        browse.init(params)
-
-        when:
-        browse.ready()
-
-        then:
-        1 * browseAnnotationExecutorService.executeReady(browse, params)
-    }
 
 
 }

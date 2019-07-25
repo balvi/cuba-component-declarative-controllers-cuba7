@@ -5,35 +5,13 @@
             name="global">
         <artifact appJar="true"
                   name="declarativecontrollers-global"/>
-        <property name="cuba.persistenceConfig"
-                  value="+de/balvi/cuba/declarativecontrollers/persistence.xml"/>
         <property name="cuba.metadataConfig"
                   value="+de/balvi/cuba/declarativecontrollers/metadata.xml"/>
         <property name="cuba.viewsConfig"
                   value="+de/balvi/cuba/declarativecontrollers/views.xml"/>
     </module>
-    <module blocks="core"
-            dependsOn="global"
-            name="core">
-        <artifact appJar="true"
-                  name="declarativecontrollers-core"/>
-        <property name="cuba.springContextConfig"
-                  value="+de/balvi/cuba/declarativecontrollers/spring.xml"/>
-        <property name="cuba.mainMessagePack"
-                  value="+de.balvi.cuba.declarativecontrollers.core"/>
-        <artifact classifier="db"
-                  configuration="dbscripts"
-                  ext="zip"
-                  name="declarativecontrollers-core"/>
-    </module>
-    <module blocks="web,desktop"
-            dependsOn="global"
-            name="gui">
-        <artifact appJar="true"
-                  name="declarativecontrollers-gui"/>
-    </module>
     <module blocks="web"
-            dependsOn="gui"
+            dependsOn="global"
             name="web">
         <artifact appJar="true"
                   name="declarativecontrollers-web"/>

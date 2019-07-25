@@ -20,78 +20,71 @@ class EditorAnnotationDispatcherBeanSpec extends Specification {
     void 'executeInit does nothing if the editor has no annotations'() {
 
         given:
-        AnnotatableAbstractEditor editor = Mock()
+        AnnotatableStandardEditor editor = Mock(AnnotatableStandardEditor)
 
         when:
-        editorAnnotationExecutorService.executeInit(editor, [:])
+        editorAnnotationExecutorService.executeOnInit(editor)
 
         then:
-        0 * executor.init(_, _, _)
+        0 * executor.init(_, _)
     }
 
     void 'executeInit executes init if an Annotation is supported'() {
 
         given:
-        AnnotatableAbstractEditor editor = new MyEditorWithAnnotation()
+        AnnotatableStandardEditor editor = new MyEditorWithAnnotation()
 
         and:
         executor.supports(_ as ToString) >> true
 
         when:
-        editorAnnotationExecutorService.executeInit(editor, [:])
+        editorAnnotationExecutorService.executeOnInit(editor)
 
         then:
-        1 * executor.init(_, _, _)
-        0 * executor2.init(_, _, _)
+        1 * executor.init(_, _)
+        0 * executor2.init(_, _)
     }
 
     void 'executeInit executes init on every AnnotationExecutor that supports the Annotation'() {
 
         given:
-        AnnotatableAbstractEditor editor = new MyEditorWithAnnotation()
+        AnnotatableStandardEditor editor = new MyEditorWithAnnotation()
 
         and:
         executor.supports(_ as ToString) >> true
         executor2.supports(_ as ToString) >> true
 
         when:
-        editorAnnotationExecutorService.executeInit(editor, [:])
+        editorAnnotationExecutorService.executeOnInit(editor)
 
         then:
-        1 * executor.init(_, _, _)
-        1 * executor2.init(_, _, _)
+        1 * executor.init(_, _)
+        1 * executor2.init(_, _)
     }
 
     void 'executeInit does nothing if there is no AnnotationExecutor for this Annotation'() {
 
         given:
-        AnnotatableAbstractEditor editor = new MyEditorWithAnnotation()
+        AnnotatableStandardEditor editor = new MyEditorWithAnnotation()
 
         and:
         executor.supports(_ as EqualsAndHashCode) >> false
 
         when:
-        editorAnnotationExecutorService.executeInit(editor, [:])
+        editorAnnotationExecutorService.executeOnInit(editor)
 
         then:
-        0 * executor.init(_, _, _)
+        0 * executor.init(_, _)
     }
-
-
-
-
-
-
-
 
 
     void 'executePostInit does nothing if the editor has no annotations'() {
 
         given:
-        AnnotatableAbstractEditor editor = Mock()
+        AnnotatableStandardEditor editor = Mock()
 
         when:
-        editorAnnotationExecutorService.executePostInit(editor)
+        editorAnnotationExecutorService.executeonBeforeShow(editor)
 
         then:
         0 * executor.postInit(_, _)
@@ -100,13 +93,13 @@ class EditorAnnotationDispatcherBeanSpec extends Specification {
     void 'executePostInit executes init if an Annotation is supported'() {
 
         given:
-        AnnotatableAbstractEditor editor = new MyEditorWithAnnotation()
+        AnnotatableStandardEditor editor = new MyEditorWithAnnotation()
 
         and:
         executor.supports(_ as ToString) >> true
 
         when:
-        editorAnnotationExecutorService.executePostInit(editor)
+        editorAnnotationExecutorService.executeonBeforeShow(editor)
 
         then:
         1 * executor.postInit(_, _)
@@ -115,29 +108,30 @@ class EditorAnnotationDispatcherBeanSpec extends Specification {
     void 'executePostInit executes init on every AnnotationExecutor that supports the Annotation'() {
 
         given:
-        AnnotatableAbstractEditor editor = new MyEditorWithAnnotation()
+        AnnotatableStandardEditor editor = new MyEditorWithAnnotation()
 
         and:
         executor.supports(_ as ToString) >> true
         executor2.supports(_ as ToString) >> true
 
         when:
-        editorAnnotationExecutorService.executePostInit(editor)
+        editorAnnotationExecutorService.executeonBeforeShow(editor)
 
         then:
         1 * executor.postInit(_, _)
         1 * executor2.postInit(_, _)
     }
+
     void 'executePostInit does nothing if there is no AnnotationExecutor for this Annotation'() {
 
         given:
-        AnnotatableAbstractEditor editor = new MyEditorWithAnnotation()
+        AnnotatableStandardEditor editor = new MyEditorWithAnnotation()
 
         and:
         executor.supports(_) >> false
 
         when:
-        editorAnnotationExecutorService.executePostInit(editor)
+        editorAnnotationExecutorService.executeonBeforeShow(editor)
 
         then:
         0 * executor.postInit(_, _)
@@ -159,5 +153,5 @@ class EditorAnnotationDispatcherMock extends EditorAnnotationDispatcherBean {
 }
 
 @ToString
-class MyEditorWithAnnotation extends AnnotatableAbstractEditor {
+class MyEditorWithAnnotation extends AnnotatableStandardEditor {
 }

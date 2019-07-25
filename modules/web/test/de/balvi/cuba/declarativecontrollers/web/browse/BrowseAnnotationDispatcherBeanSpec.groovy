@@ -6,30 +6,27 @@ import groovy.transform.ToString
 import spock.lang.Specification
 
 class BrowseAnnotationDispatcherBeanSpec extends Specification {
-    BrowseAnnotationDispatcher browseAnnotationExecutorService
-    BrowseAnnotationExecutor executor
-    BrowseAnnotationExecutor executor2
+    BrowseAnnotationDispatcher sut
+    BrowseAnnotationExecutor executor = Mock(BrowseAnnotationExecutor)
+    BrowseAnnotationExecutor executor2 = Mock(BrowseAnnotationExecutor)
 
     def setup() {
-        executor = Mock()
-        executor2 = Mock()
-
-        browseAnnotationExecutorService = new BrowseAnnotationDispatcherMock([executor, executor2])
+        sut = new BrowseAnnotationDispatcherMock([executor, executor2])
     }
 
-    void 'executeInit does nothing if the browser has no annotations'() {
+    void 'executeOnInit does nothing if the browser has no annotations'() {
 
         given:
-        AnnotatableAbstractLookup browse = Mock()
+        AnnotatableAbstractLookup browse = Mock(AnnotatableAbstractLookup)
 
         when:
-        browseAnnotationExecutorService.executeInit(browse, [:])
+        sut.executeOnInit(browse)
 
         then:
-        0 * executor.init(_, _, _)
+        0 * executor.init(_, _)
     }
 
-    void 'executeInit executes init if an Annotation is supported'() {
+    void 'executeOnInit executes init if an Annotation is supported'() {
 
         given:
         AnnotatableAbstractLookup browse = new MyBrowseWithAnnotation()
@@ -38,11 +35,11 @@ class BrowseAnnotationDispatcherBeanSpec extends Specification {
         executor.supports(_ as ToString) >> true
 
         when:
-        browseAnnotationExecutorService.executeInit(browse, [:])
+        sut.executeOnInit(browse)
 
         then:
-        1 * executor.init(_, _, _)
-        0 * executor2.init(_, _, _)
+        1 * executor.init(_, _)
+        0 * executor2.init(_, _)
     }
 
     void 'executeInit executes init on every AnnotationExecutor that supports the Annotation'() {
@@ -55,11 +52,11 @@ class BrowseAnnotationDispatcherBeanSpec extends Specification {
         executor2.supports(_ as ToString) >> true
 
         when:
-        browseAnnotationExecutorService.executeInit(browse, [:])
+        sut.executeOnInit(browse)
 
         then:
-        1 * executor.init(_, _, _)
-        1 * executor2.init(_, _, _)
+        1 * executor.init(_, _)
+        1 * executor2.init(_, _)
     }
 
     void 'executeInit does nothing if there is no AnnotationExecutor for this Annotation'() {
@@ -71,34 +68,26 @@ class BrowseAnnotationDispatcherBeanSpec extends Specification {
         executor.supports(_ as EqualsAndHashCode) >> false
 
         when:
-        browseAnnotationExecutorService.executeInit(browse, [:])
+        sut.executeOnInit(browse)
 
         then:
-        0 * executor.init(_, _, _)
+        0 * executor.init(_, _)
     }
 
 
-
-
-
-
-
-
-
-
-    void 'executeReady does nothing if the browser has no annotations'() {
+    void 'onBeforeShow does nothing if the browser has no annotations'() {
 
         given:
-        AnnotatableAbstractLookup browse = Mock()
+        AnnotatableAbstractLookup browse = Mock(AnnotatableAbstractLookup)
 
         when:
-        browseAnnotationExecutorService.executeReady(browse, [:])
+        sut.onBeforeShow(browse)
 
         then:
-        0 * executor.ready(_, _, _)
+        0 * executor.ready(_, _)
     }
 
-    void 'executeReady executes init if an Annotation is supported'() {
+    void 'onBeforeShow executes init if an Annotation is supported'() {
 
         given:
         AnnotatableAbstractLookup browse = new MyBrowseWithAnnotation()
@@ -107,14 +96,14 @@ class BrowseAnnotationDispatcherBeanSpec extends Specification {
         executor.supports(_ as ToString) >> true
 
         when:
-        browseAnnotationExecutorService.executeReady(browse, [:])
+        sut.onBeforeShow(browse)
 
         then:
-        1 * executor.ready(_, _, _)
-        0 * executor2.ready(_, _, _)
+        1 * executor.ready(_, _)
+        0 * executor2.ready(_, _)
     }
 
-    void 'executeReady executes init on every AnnotationExecutor that supports the Annotation'() {
+    void 'onBeforeShow executes init on every AnnotationExecutor that supports the Annotation'() {
 
         given:
         AnnotatableAbstractLookup browse = new MyBrowseWithAnnotation()
@@ -124,14 +113,14 @@ class BrowseAnnotationDispatcherBeanSpec extends Specification {
         executor2.supports(_ as ToString) >> true
 
         when:
-        browseAnnotationExecutorService.executeReady(browse, [:])
+        sut.onBeforeShow(browse)
 
         then:
-        1 * executor.ready(_, _, _)
-        1 * executor2.ready(_, _, _)
+        1 * executor.ready(_, _)
+        1 * executor2.ready(_, _)
     }
 
-    void 'executeReady does nothing if there is no AnnotationExecutor for this Annotation'() {
+    void 'onBeforeShow does nothing if there is no AnnotationExecutor for this Annotation'() {
 
         given:
         AnnotatableAbstractLookup browse = new MyBrowseWithAnnotation()
@@ -140,10 +129,10 @@ class BrowseAnnotationDispatcherBeanSpec extends Specification {
         executor.supports(_ as EqualsAndHashCode) >> false
 
         when:
-        browseAnnotationExecutorService.executeReady(browse, [:])
+        sut.onBeforeShow(browse)
 
         then:
-        0 * executor.ready(_, _, _)
+        0 * executor.ready(_, _)
     }
 }
 

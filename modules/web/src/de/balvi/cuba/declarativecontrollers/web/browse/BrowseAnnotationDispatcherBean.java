@@ -1,6 +1,7 @@
 package de.balvi.cuba.declarativecontrollers.web.browse;
 
 import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.gui.screen.StandardLookup;
 import de.balvi.cuba.declarativecontrollers.web.annotationexecutor.AbstractAnnotationDispatcherBean;
 import de.balvi.cuba.declarativecontrollers.web.annotationexecutor.browse.BrowseAnnotationExecutor;
 import de.balvi.cuba.declarativecontrollers.web.annotationexecutor.browse.BrowseFieldAnnotationExecutor;
@@ -15,12 +16,12 @@ import java.util.Map;
 class BrowseAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean<BrowseAnnotationExecutor, BrowseFieldAnnotationExecutor> implements BrowseAnnotationDispatcher {
 
     @Override
-    public void executeInit(AnnotatableAbstractLookup browse, Map<String, Object> params) {
-        executeInitForClassAnnotations(browse, params);
-        executeInitForFieldAnnotations(browse, params);
+    public void executeOnInit(StandardLookup browse) {
+        executeInitForClassAnnotations(browse);
+        executeInitForFieldAnnotations(browse);
     }
 
-    private void executeInitForFieldAnnotations(AnnotatableAbstractLookup browse, Map<String, Object> params) {
+    private void executeInitForFieldAnnotations(StandardLookup browse) {
         for (Field field : getDeclaredFields(browse)) {
             Annotation[] fieldAnnotations = field.getAnnotations();
 
@@ -31,7 +32,7 @@ class BrowseAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean<Br
                 if (supportedAnnotationExecutors != null && supportedAnnotationExecutors.size() > 0) {
                     com.haulmont.cuba.gui.components.Component fieldValue = getFieldValue(browse, field);
                     for (BrowseFieldAnnotationExecutor annotationExecutor : supportedAnnotationExecutors) {
-                        annotationExecutor.init(annotation, browse, fieldValue, params);
+                        annotationExecutor.init(annotation, browse, fieldValue);
                     }
                 }
 
@@ -39,12 +40,12 @@ class BrowseAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean<Br
         }
     }
 
-    private void executeInitForClassAnnotations(AnnotatableAbstractLookup browse, Map<String, Object> params) {
+    private void executeInitForClassAnnotations(StandardLookup browse) {
         for (Annotation annotation : getClassAnnotations(browse)) {
             Collection<BrowseAnnotationExecutor> supportedAnnotationExecutors = getSupportedBrowseAnnotationExecutors(annotation);
 
             for (BrowseAnnotationExecutor annotationExecutor : supportedAnnotationExecutors) {
-                annotationExecutor.init(annotation, browse, params);
+                annotationExecutor.init(annotation, browse);
             }
         }
     }
@@ -52,12 +53,12 @@ class BrowseAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean<Br
 
 
     @Override
-    public void executeReady(AnnotatableAbstractLookup browse, Map<String, Object> params) {
-        executeReadyForClassAnnotations(browse, params);
-        executeReadyForFieldAnnotations(browse, params);
+    public void onBeforeShow(StandardLookup browse) {
+        executeReadyForClassAnnotations(browse);
+        executeReadyForFieldAnnotations(browse);
     }
 
-    private void executeReadyForFieldAnnotations(AnnotatableAbstractLookup browse, Map<String, Object> params) {
+    private void executeReadyForFieldAnnotations(StandardLookup browse) {
         for (Field field : getDeclaredFields(browse)) {
 
             Annotation[] fieldAnnotations = field.getAnnotations();
@@ -68,20 +69,20 @@ class BrowseAnnotationDispatcherBean extends AbstractAnnotationDispatcherBean<Br
                 if (supportedAnnotationExecutors != null && supportedAnnotationExecutors.size() > 0) {
                     com.haulmont.cuba.gui.components.Component fieldValue = getFieldValue(browse, field);
                     for (BrowseFieldAnnotationExecutor annotationExecutor : supportedAnnotationExecutors) {
-                        annotationExecutor.ready(annotation, browse, fieldValue, params);
+                        annotationExecutor.ready(annotation, browse, fieldValue);
                     }
                 }
             }
         }
     }
 
-    private void executeReadyForClassAnnotations(AnnotatableAbstractLookup browse, Map<String, Object> params) {
+    private void executeReadyForClassAnnotations(StandardLookup browse) {
         for (Annotation annotation : getClassAnnotations(browse)) {
 
             Collection<BrowseAnnotationExecutor> supportedAnnotations = getSupportedBrowseAnnotationExecutors(annotation);
 
             for (BrowseAnnotationExecutor annotationExecutor : supportedAnnotations) {
-                annotationExecutor.ready(annotation, browse, params);
+                annotationExecutor.ready(annotation, browse);
             }
         }
     }

@@ -1,27 +1,22 @@
 package de.balvi.cuba.declarativecontrollers.web.browse;
 
-import com.haulmont.cuba.gui.components.AbstractLookup;
+import com.haulmont.cuba.gui.screen.StandardLookup;
+import com.haulmont.cuba.gui.screen.Subscribe;
 
 import javax.inject.Inject;
-import java.util.Map;
 
-public class AnnotatableAbstractLookup extends AbstractLookup {
+public class AnnotatableAbstractLookup extends StandardLookup {
 
     @Inject
     protected BrowseAnnotationDispatcher browseAnnotationDispatcher;
 
-    private Map<String, Object> params;
-
-    @Override
-    public void init(Map<String, Object> params) {
-        super.init(params);
-        this.params = params;
-        browseAnnotationDispatcher.executeInit(this, params);
+    @Subscribe
+    protected void onInit(InitEvent event) {
+        browseAnnotationDispatcher.executeOnInit(this);
     }
 
-    @Override
-    public void ready() {
-        browseAnnotationDispatcher.executeReady(this, params);
+    @Subscribe
+    protected void onBeforeShow(BeforeShowEvent event) {
+        browseAnnotationDispatcher.onBeforeShow(this);
     }
-
 }

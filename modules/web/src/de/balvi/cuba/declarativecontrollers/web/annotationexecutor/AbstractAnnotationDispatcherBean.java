@@ -1,6 +1,7 @@
 package de.balvi.cuba.declarativecontrollers.web.annotationexecutor;
 
-import com.haulmont.cuba.gui.components.Frame;
+import com.haulmont.cuba.gui.components.Component;
+import com.haulmont.cuba.gui.screen.FrameOwner;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -9,14 +10,14 @@ import java.util.Collection;
 
 abstract public class AbstractAnnotationDispatcherBean<T extends AnnotationExecutor, K extends AnnotationExecutor> {
 
-    protected Field[] getDeclaredFields(Frame frame) {
+    protected Field[] getDeclaredFields(FrameOwner frame) {
         return frame.getClass().getDeclaredFields();
     }
 
-    protected com.haulmont.cuba.gui.components.Component getFieldValue(Frame frame, Field field) {
+    protected Component getFieldValue(FrameOwner frame, Field field) {
         try {
             field.setAccessible(true);
-            return (com.haulmont.cuba.gui.components.Component) field.get(frame);
+            return (Component) field.get(frame);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             return null;
@@ -24,7 +25,7 @@ abstract public class AbstractAnnotationDispatcherBean<T extends AnnotationExecu
     }
 
 
-    protected Annotation[] getClassAnnotations(Frame frame) {
+    protected Annotation[] getClassAnnotations(FrameOwner frame) {
         return frame.getClass().getAnnotations();
     }
 

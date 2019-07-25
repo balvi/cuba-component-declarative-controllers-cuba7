@@ -14,6 +14,7 @@ CUBA component that allows to write generic features for a Controller and use th
 
 | Platform Version | Add-on Version |
 | ---------------- | -------------- |
+| 7.0.x            | 1.0.x          |
 | 7.0.x            | 0.8.x          |
 | 6.10.x           | 0.7.x          |
 | 6.9.x            | 0.6.x          |
@@ -89,7 +90,7 @@ public class CustomerBrowse extends AnnotatableAbstractLookup {
 ````
 
 You just pick and choose your features and the implementation gets injected into your controllers. The only requirement is that your Controller
-extends from `AnnotatableAbstractLookup` instead of `AbstractLookup` directly (or `AnnotatableAbstractEditor` for editor controllers). But this
+extends from `AnnotatableAbstractLookup` instead of `AbstractLookup` directly (or `AnnotatableStandardEditor` for editor controllers). But this
 is the only superclass you need to extend from. Not for every feature another superclass.
 
 

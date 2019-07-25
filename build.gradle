@@ -1,6 +1,6 @@
 
 buildscript {
-    ext.cubaVersion = '7.0.0'
+    ext.cubaVersion = '7.0.2'
     repositories {
         maven {
             url 'https://repo.cuba-platform.com/content/groups/work'
@@ -22,8 +22,6 @@ buildscript {
 def modulePrefix = 'declarativecontrollers'
 
 def globalModule = project(":${modulePrefix}-global" )
-def coreModule = project(":${modulePrefix}-core" )
-def guiModule = project(":${modulePrefix}-gui" )
 def webModule = project(":${modulePrefix}-web" )
 
 def servletApi = 'javax.servlet:javax.servlet-api:3.1.0'
@@ -34,8 +32,8 @@ apply(plugin: 'cuba')
 cuba {
     artifact {
         group = 'de.balvi.cuba.declarativecontrollers'
-        version = "0.8.0"
-        isSnapshot = false
+        version = "1.0.0"
+        isSnapshot = true
     }
     tomcat {
         dir = "$project.rootDir/deploy/tomcat"
@@ -50,7 +48,7 @@ dependencies {
 
 }
 
-def hsql = 'org.hsqldb:hsqldb:2.2.9'
+def hsql = 'org.hsqldb:hsqldb:2.4.1'
 
 
 allprojects {
@@ -81,7 +79,7 @@ test.dependsOn(subprojects.collect{ ":${it.name}:test"} )
 test.finalizedBy(project.tasks.cobertura)
 test.finalizedBy(project.tasks.coberturaCheck)
 
-configure([globalModule, coreModule, guiModule, webModule]) {
+configure([globalModule, webModule]) {
     apply(plugin: 'java')
     apply(plugin: 'maven')
     apply(plugin: 'cuba')
@@ -104,7 +102,7 @@ configure([globalModule, coreModule, guiModule, webModule]) {
 }
 
 
-configure([globalModule, coreModule, guiModule, webModule]) {
+configure([globalModule, webModule]) {
     apply(plugin: 'groovy')
     apply plugin: 'net.saliman.cobertura'
     apply plugin: 'codenarc'
@@ -157,65 +155,6 @@ configure(globalModule) {
     }
 }
 
-configure(coreModule) {
-
-    configurations {
-        jdbc
-        dbscripts
-    }
-
-    dependencies {
-        compile(globalModule)
-        compileOnly(servletApi)
-        jdbc(hsql)
-        testRuntime(hsql)
-
-    }
-
-    task cleanConf(description: 'Cleans up conf directory') {
-        doLast {
-            def dir = new File(cuba.tomcat.dir, "/conf/${modulePrefix}-core" )
-            if (dir.isDirectory()) {
-                ant.delete(includeemptydirs: true) {
-                    fileset(dir: dir, includes: '**/*', excludes: 'local.app.properties')
-                }
-            }
-        }
-    }
-
-    task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
-        appName = "${modulePrefix}-core"
-        appJars(modulePrefix + '-global', modulePrefix + '-core')
-    }
-
-    task createDb(dependsOn: assembleDbScripts, description: 'Creates local database', type: CubaDbCreation) {
-        dbms = 'hsql'
-        host = 'localhost'
-        dbName = 'dbcdc'
-        dbUser = 'sa'
-        dbPassword = ''
-    }
-
-    task updateDb(dependsOn: assembleDbScripts, description: 'Updates local database', type: CubaDbUpdate) {
-        dbms = 'hsql'
-        host = 'localhost'
-        dbName = 'dbcdc'
-        dbUser = 'sa'
-        dbPassword = ''
-    }
-}
-
-configure(guiModule) {
-    dependencies {
-        compile(globalModule)
-    }
-
-    task deployConf(type: Copy) {
-        from file('src')
-        include "de/balvi/cuba/declarativecontrollers/**"
-        into "$cuba.tomcat.dir/conf/${modulePrefix}"
-    }
-}
 
 configure(webModule) {
     configurations {
@@ -224,7 +163,7 @@ configure(webModule) {
 
     dependencies {
         compileOnly(servletApi)
-        compile(guiModule)
+        compile(globalModule)
     }
     
     task webArchive(type: Zip) {
@@ -262,7 +201,7 @@ configure(webModule) {
 
     task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
         appName = "${modulePrefix}"
-        appJars(modulePrefix + '-global', modulePrefix + '-gui', modulePrefix + '-web')
+        appJars(modulePrefix + '-global', modulePrefix + '-web')
     }
 }
 
@@ -272,7 +211,7 @@ task undeploy(type: Delete, dependsOn: ":${modulePrefix}-web:cleanConf" ) {
     delete("$cuba.tomcat.dir/webapps/${modulePrefix}" )
 }
 
-task restart(dependsOn: ['stop', ":${modulePrefix}-core:deploy" , ":${modulePrefix}-web:deploy" ], description: 'Redeploys applications and restarts local Tomcat') {
+task restart(dependsOn: ['stop', ":${modulePrefix}-web:deploy" ], description: 'Redeploys applications and restarts local Tomcat') {
     doLast {
         ant.waitfor(maxwait: 6, maxwaitunit: 'second', checkevery: 2, checkeveryunit: 'second') {
             not {
